@@ -533,7 +533,10 @@ function refreshPorts(){
 }
 function bindInputs(){
   const v=$('#inSel').value;
-  for(const i of midi.inputs.values()) i.onmidimessage=(v==='all'||v===i.id)?onMidi:null;
+  // nunca escuchar el mismo puerto virtual al que se manda la salida: eso crea un bucle infinito
+  const o=midi.outputs.get($('#outSel').value), oName=o?o.name.replace(/\s*\d+$/,''):null;
+  const loop=i=>oName&&(i.name===o.name||i.name.replace(/\s*\d+$/,'')===oName);
+  for(const i of midi.inputs.values()) i.onmidimessage=((v==='all'&&!loop(i))||(v===i.id&&!loop(i)))?onMidi:null;
 }
 function bindOutput(){
   Out.allOff();
@@ -1161,7 +1164,7 @@ $('#learnDown').onclick=()=>{S.learn=S.learn==='down'?null:'down';renderBind();i
 $('#learnClear').onclick=()=>{S.bind={up:null,down:null};S.learn=null;store.set('bind',S.bind);renderBind()};
 renderBind();
 $('#inSel').onchange=e=>{store.set('in',e.target.value);bindInputs();refreshPorts()};
-$('#outSel').onchange=e=>{store.set('out',e.target.value);bindOutput();if(e.target.value&&S.internal)toast('Tip: apaga “Sonido interno” para oír solo Kontakt')};
+$('#outSel').onchange=e=>{store.set('out',e.target.value);bindOutput();bindInputs();if(e.target.value&&S.internal)toast('Tip: apaga “Sonido interno” para oír solo Kontakt')};
 $('#internal').checked=S.internal;
 $('#internal').onchange=e=>{S.internal=e.target.checked;store.set('internal',S.internal);if(!S.internal)Synth.allAutoOff()};
 $('#vol').value=Math.round(S.volume*100);
