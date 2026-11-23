@@ -29,12 +29,12 @@ button,select,input{font:inherit;color:inherit}
 .app{display:grid;grid-template-rows:auto 1fr auto;height:100%}
 
 /* top bar */
-.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--bg-2);border-bottom:1px solid var(--line)}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--bg-2);border-bottom:1px solid var(--line)}
 .brand{font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.02em;display:flex;align-items:center;gap:8px;white-space:nowrap}
 .brand i{display:inline-flex;gap:2px;align-items:flex-end;height:16px}
 .brand i b{width:4px;border-radius:2px;background:var(--right)}
 .brand i b:nth-child(1){height:9px}.brand i b:nth-child(2){height:16px;background:var(--left)}.brand i b:nth-child(3){height:12px}
-.song{display:flex;align-items:center;gap:10px;min-width:0;flex:1 1 220px}
+.song{display:flex;align-items:center;gap:10px;min-width:0;flex:1 1 120px}
 .song-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)}
 .song-name strong{color:var(--fg);font-weight:600}
 .grp{display:flex;align-items:center;gap:6px}
@@ -49,7 +49,7 @@ button,select,input{font:inherit;color:inherit}
 .seg button{background:none;border:0;padding:6px 11px;border-radius:7px;cursor:pointer;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--panel-2);color:var(--fg);box-shadow:inset 0 0 0 1px var(--line)}
 select{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 8px;max-width:100%}
-input[type=range]{accent-color:var(--right);width:110px}
+input[type=range]{accent-color:var(--right);width:90px}
 .speed-val{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13px;min-width:92px}
 .speed-val small{color:var(--muted)}
 
@@ -155,6 +155,12 @@ input[type=checkbox]{accent-color:var(--left);width:15px;height:15px}
       <button class="btn icon" id="speedUp" aria-label="Más rápido">+</button>
       <span class="speed-val" id="speedVal">100% <small>♩92</small></span>
     </div>
+    <div class="grp" title="Sube o baja las notas de tu teclado MIDI para que te queden cómodas (teclas − y =)">
+      <span class="lbl">Octava</span>
+      <button class="btn icon" id="octDown" aria-label="Bajar una octava">−</button>
+      <span class="speed-val" id="octVal" style="min-width:24px;text-align:center">0</span>
+      <button class="btn icon" id="octUp" aria-label="Subir una octava">+</button>
+    </div>
     <button class="btn" id="btnSettings">Ajustes</button>
   </header>
 
@@ -200,6 +206,16 @@ input[type=checkbox]{accent-color:var(--left);width:15px;height:15px}
   <div class="field"><span>Entrada (tu teclado)</span><select id="inSel"><option value="all">Todas las entradas</option></select></div>
   <div class="inline" style="margin-bottom:12px"><span class="note" id="midiNote">—</span><button class="btn" id="btnConnect">Conectar</button></div>
 
+  <h3>Octava de tu teclado</h3>
+  <p class="note">El teclado en pantalla es igual a tu teclado. Con Octava − / + de la barra de arriba (o las teclas − y =) bajas o subes tu teclado y la pantalla se mueve con él. Solo cuenta como buena la nota exacta.</p>
+  <p class="note">Si los botones de octava de tu teclado no hacen nada aquí, asígnalos: da clic en un botón de abajo y luego aprieta el botón de octava de tu teclado.</p>
+  <div class="row" style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 10px">
+    <button class="btn" id="learnUp">Octava ▲: sin asignar</button>
+    <button class="btn" id="learnDown">Octava ▼: sin asignar</button>
+    <button class="btn" id="learnClear">Borrar</button>
+  </div>
+  <p class="note">Último mensaje de tu teclado: <b id="lastMsg">—</b></p>
+
   <h3>Sonido</h3>
   <label class="chk" style="margin-bottom:10px"><input type="checkbox" id="internal" checked>Sonido interno (piano sencillo)</label>
   <div class="field"><span>Volumen</span><input id="vol" type="range" min="0" max="100" value="80"></div>
@@ -214,8 +230,8 @@ input[type=checkbox]{accent-color:var(--left);width:15px;height:15px}
   <p class="note">Si la canción trae dos pistas marcadas como “Tú”, la más aguda es la mano derecha. Con una sola pista, se divide en la nota de arriba.</p>
 
   <h3>Vista</h3>
-  <div class="field"><span>Teclado en pantalla</span>
-    <select id="rangeSel"><option value="auto">Automático según la canción</option><option value="49">49 teclas</option><option value="61">61 teclas</option><option value="76">76 teclas</option><option value="88">88 teclas</option></select></div>
+  <div class="field"><span>Tamaño de tu teclado (el de la pantalla se iguala)</span>
+    <select id="rangeSel"><option value="auto">Automático según la canción</option><option value="49">49 teclas</option><option value="61">61 teclas (Do2–Do7)</option><option value="76">76 teclas</option><option value="88">88 teclas</option></select></div>
   <div class="field"><span>Distancia entre notas (zoom)</span><input id="zoom" type="range" min="70" max="400" value="170"></div>
   <label class="chk" style="margin-bottom:10px"><input type="checkbox" id="names" checked>Mostrar nombres (Do, Re, Mi…)</label>
   <div class="field"><span>Compensar retraso de entrada: <b id="latVal">0 ms</b></span><input id="latency" type="range" min="-50" max="200" step="5" value="0"></div>
@@ -237,6 +253,7 @@ input[type=checkbox]{accent-color:var(--left);width:15px;height:15px}
     <kbd>↑ ↓</kbd><span>Velocidad ±5%</span>
     <kbd>← →</kbd><span>Retroceder / avanzar 2 s</span>
     <kbd>1 2 3</kbd><span>Marcar A, marcar B, repetir</span>
+    <kbd>− =</kbd><span>Bajar / subir la octava de tu teclado MIDI</span>
     <kbd>A W S E D F T G Y H U J K</kbd><span>Piano con el teclado de la computadora (Z/X cambia octava)</span>
   </div>
 </aside>
@@ -398,11 +415,13 @@ let W=0,H=0,DPR=1;
 const store={get(k,d){try{const v=localStorage.getItem('cascada:'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('cascada:'+k,JSON.stringify(v))}catch(e){}}};
 const S={
   song:null,user:[],t:0,t0:-2,playing:false,speed:1,mode:'wait',hands:'both',split:60,
-  loopA:null,loopB:null,loopOn:false,trainer:false,pps:store.get('pps',170),rangeMode:'auto',range:[48,84],
+  loopA:null,loopB:null,loopOn:false,trainer:false,pps:store.get('pps',170),rangeMode:store.get('rangeMode','61'),range:[48,84],
   showNames:store.get('names',true),latency:store.get('latency',0),guide:false,internal:store.get('internal',true),volume:store.get('vol',0.8),
   sendKeys:true,sendAuto:true,autoPtr:0,userPtr:0,missPtr:0,waiting:null,stats:null,
   pressed:new Map(),sustain:false,sustained:new Set(),particles:[],kx:[],kw:[],ww:20,kbH:120,hitY:300,
-  octave:0,finished:false
+  octave:0,finished:false,
+  inOct:store.get('inOct',0),view:store.get('inOct',0),
+  octMiss:{d:0,n:0},midiHeld:new Map(),learn:null,bind:store.get('bind',{up:null,down:null})
 };
 const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const newStats=()=>({score:0,combo:0,max:0,perfect:0,good:0,ok:0,miss:0,wrong:0,hits:0});
@@ -521,25 +540,59 @@ function bindOutput(){
   const id=$('#outSel').value;
   Out.port=id&&midi?midi.outputs.get(id)||null:null;
 }
+const clampP=p=>Math.max(0,Math.min(127,p));
+const MSG_NAMES={0x80:'Nota apagada',0x90:'Nota',0xA0:'Presión',0xB0:'Control CC',0xC0:'Cambio de programa',0xD0:'Presión',0xE0:'Pitch bend'};
+function describeMsg(s,a,b){const hi=s&0xF0;if(hi===0x90||hi===0x80)return `${MSG_NAMES[hi]} ${noteName(a)} (${a}), vel ${b??0}`;if(hi===0xC0)return `${MSG_NAMES[hi]} ${a}`;return `${MSG_NAMES[hi]||'Mensaje'} ${a} = ${b??''}`}
+const bindKey=(s,a)=>(s&0xF0)+':'+a;
 function onMidi(e){
   const [s,a,b]=e.data, hi=s&0xF0;
-  if(hi===0x90&&b>0) userOn(a,b);
-  else if(hi===0x80||(hi===0x90&&b===0)) userOff(a);
+  if(hi===0xF0)return;
+  $('#lastMsg').textContent=describeMsg(s,a,b);
+  // aprender botones de octava
+  if(S.learn&&((hi===0xB0&&b>0)||hi===0xC0)){
+    S.bind[S.learn]=bindKey(s,a); store.set('bind',S.bind);
+    toast('Botón asignado a octava '+(S.learn==='up'?'arriba':'abajo')); S.learn=null; renderBind(); return;
+  }
+  if(hi===0xB0||hi===0xC0){
+    const k=bindKey(s,a);
+    if(k===S.bind.up||k===S.bind.down){ if(hi===0xC0||b>0)setInOct(S.inOct+(k===S.bind.up?1:-1)); return; }
+  }
+  if(hi===0x90&&b>0){ const m=clampP(a+12*S.inOct); S.midiHeld.set(a,m); userOn(m,b,true); }
+  else if(hi===0x80||(hi===0x90&&b===0)){ const m=S.midiHeld.has(a)?S.midiHeld.get(a):clampP(a+12*S.inOct); S.midiHeld.delete(a); userOff(m); }
   else if(hi===0xB0){
     if(a===64) setSustain(b>=64);
     if(S.sendKeys)Out.send([0xB0,a,b]);
   }
 }
+const octLabel=v=>(v>0?'+':'')+v;
+function setInOct(v,auto){
+  v=Math.max(-3,Math.min(3,v)); if(v===S.inOct)return;
+  S.view+=v-S.inOct; S.inOct=v; store.set('inOct',v); $('#octVal').textContent=octLabel(v);
+  for(const [raw,m] of S.midiHeld){ userOff(m); S.midiHeld.set(raw,clampP(raw+12*v)); }
+  S.octMiss={d:0,n:0};
+  computeRange(); layoutKeys();
+  toast(`Octava ${octLabel(v)} · tu teclado va de ${noteName(S.range[0])} a ${noteName(S.range[1])}`);
+}
+function renderBind(){
+  const f=k=>{if(!k)return 'sin asignar';const [hi,a]=k.split(':').map(Number);return hi===0xC0?'Programa '+a:'CC '+a};
+  $('#learnUp').textContent=S.learn==='up'?'Aprieta el botón…':'Octava ▲: '+f(S.bind.up);
+  $('#learnDown').textContent=S.learn==='down'?'Aprieta el botón…':'Octava ▼: '+f(S.bind.down);
+}
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 /* ---------- entrada del usuario ---------- */
-function userOn(p,vel){
+function userOn(p,vel,fromMidi){
   Synth.ensure();
+  // si tu teclado manda notas fuera de la pantalla (por ejemplo, usaste sus botones de octava), la pantalla lo sigue
+  if(fromMidi&&S.rangeMode!=='auto'&&S.rangeMode!=='88'&&(p<S.range[0]||p>S.range[1])){
+    S.view+=p<S.range[0]?-Math.ceil((S.range[0]-p)/12):Math.ceil((p-S.range[1])/12);
+    computeRange(); layoutKeys(); toast(`Teclado en pantalla: ${noteName(S.range[0])} a ${noteName(S.range[1])}`);
+  }
   S.sustained.delete(p);
   Synth.userOn(p,vel);
   if(S.sendKeys)Out.on(p,vel,0);
   S.pressed.set(p,{ok:null,at:performance.now()});
-  judge(p);
+  judge(p,vel,fromMidi);
 }
 function userOff(p){
   S.pressed.delete(p);
@@ -551,32 +604,44 @@ function setSustain(on){
   if(!on){ for(const p of S.sustained){ if(!S.pressed.has(p)){Synth.userOff(p); if(S.sendKeys)Out.off(p,0)} } S.sustained.clear(); }
 }
 
-function judge(p){
-  const song=S.song; if(!song||S.mode==='listen')return;
+const same=(n,p)=>n.pitch===p;
+function candidates(){
+  const U=S.user,sp=S.speed,out=[];
+  if(S.mode==='wait'){ const ahead=S.t+Math.max(0.12,0.35*sp); for(let i=S.userPtr;i<U.length&&U[i].start<=ahead;i++)if(!U[i].hit)out.push(U[i]); }
+  else{ const tAdj=S.t-S.latency/1000*sp; for(let i=S.missPtr;i<U.length&&U[i].start<=tAdj+0.2*sp;i++){const n=U[i];if(!n.hit&&!n.missed&&Math.abs(n.start-tAdj)/sp<=0.2)out.push(n)} }
+  return out;
+}
+let rangeToastAt=0;
+function outOfRange(p){
+  const [lo,hi]=S.range; if(p>=lo&&p<=hi)return;
+  const now=performance.now(); if(now-rangeToastAt<4000)return; rangeToastAt=now;
+  toast(`${noteName(p)} no cabe en el teclado en pantalla. En Ajustes elige el tamaño de tu teclado (61 teclas) para que la pantalla siga tu octava.`);
+}
+function judge(p,vel=90,fromMidi=false){
+  const song=S.song; if(!song||S.mode==='listen'){outOfRange(p);return}
   const pr=S.pressed.get(p);
   if(!S.playing){
-    if(S.mode==='wait'&&!S.finished){ const n=S.user[S.userPtr]; if(n&&n.pitch===p&&n.start-S.t<1.5){ setPlaying(true); } else return; }
-    else return;
+    if(S.mode!=='wait'||S.finished){outOfRange(p);return}
+    const n0=S.user[S.userPtr];
+    if(!n0||n0.start-S.t>=2.5){outOfRange(p);return}
+    const first=[];for(let i=S.userPtr;i<S.user.length&&S.user[i].start<=n0.start+0.03;i++)if(!S.user[i].hit)first.push(S.user[i]);
+    if(first.some(n=>same(n,p))){ if(n0.start>S.t)seek(n0.start-0.001,true); setPlaying(true); }
+    else{ outOfRange(p); return; }
   }
-  const U=S.user, sp=S.speed;
+  const sp=S.speed, c=candidates();
   if(S.mode==='wait'){
-    const ahead=S.t+Math.max(0.12,0.35*sp);
-    for(let i=S.userPtr;i<U.length&&U[i].start<=ahead;i++){
-      const n=U[i];
-      if(!n.hit&&n.pitch===p){ markHit(n,'ok'); S.stats.hits++; S.stats.combo++; S.stats.max=Math.max(S.stats.max,S.stats.combo); if(pr)pr.ok=true; return; }
-    }
-    S.stats.wrong++; S.stats.combo=0; if(pr)pr.ok=false;
+    const n=c.find(n=>same(n,p));
+    if(n){ S.octMiss={d:0,n:0}; markHit(n,'ok'); S.stats.hits++; S.stats.combo++; S.stats.max=Math.max(S.stats.max,S.stats.combo); if(pr)pr.ok=true; return; }
+    S.stats.wrong++; S.stats.combo=0; if(pr)pr.ok=false; outOfRange(p);
     return;
   }
   // modo tocar
   const tAdj=S.t-S.latency/1000*sp;
   let best=null,bd=1e9;
-  for(let i=S.missPtr;i<U.length&&U[i].start<=tAdj+0.2*sp;i++){
-    const n=U[i]; if(n.hit||n.missed||n.pitch!==p)continue;
-    const d=Math.abs(n.start-tAdj)/sp; if(d<bd){bd=d;best=n}
-  }
+  for(const n of c){ if(!same(n,p))continue; const d=Math.abs(n.start-tAdj)/sp; if(d<bd){bd=d;best=n} }
   const st=S.stats;
-  if(best&&bd<=0.2){
+  if(best){
+    S.octMiss={d:0,n:0};
     let label,pts,col;
     if(bd<=0.05){label='¡Perfecto!';pts=100;st.perfect++;col=C.gold}
     else if(bd<=0.11){label='Bien';pts=70;st.good++;col=C.good}
@@ -587,7 +652,7 @@ function judge(p){
     if(pr)pr.ok=true;
   }else{
     st.wrong++; st.combo=0; if(pr)pr.ok=false;
-    showJudge('Nota equivocada',C.bad);
+    showJudge('Nota equivocada',C.bad); outOfRange(p);
   }
 }
 const mult=()=>Math.min(4,1+Math.floor(S.stats.combo/10));
@@ -634,7 +699,12 @@ function recompute(){
 }
 function computeRange(){
   const presets={49:[36,84],61:[36,96],76:[28,103],88:[21,108]};
-  if(S.rangeMode!=='auto'){S.range=presets[S.rangeMode];return}
+  if(S.rangeMode!=='auto'){
+    const pr=presets[S.rangeMode]; if(S.rangeMode==='88'){S.range=pr;return}
+    let lo=pr[0]+12*S.view, hi=pr[1]+12*S.view;
+    while(lo<0){lo+=12;hi+=12;S.view++} while(hi>127){lo-=12;hi-=12;S.view--}
+    S.range=[lo,hi]; return;
+  }
   let mn=127,mx=0;
   if(S.song)for(const n of S.song.notes)if(n.kind!=='mute'){mn=Math.min(mn,n.pitch);mx=Math.max(mx,n.pitch)}
   if(mn>mx){mn=48;mx=84}
@@ -862,6 +932,15 @@ function draw(now){
     if(!c){g.fillStyle='rgba(255,255,255,.08)';g.fillRect(x+2,hitY,w-4,bh*0.12+2)}
     if(pend&&[...pend].some(n=>n.pitch===p)){g.fillStyle=rgba(C.gold,0.95);g.fillRect(x+2,hitY+bh-8,w-4,4)}
   }
+  // avisos cuando vienen notas que no caben en tu teclado
+  let outL=false,outR=false;
+  for(let i=i0;i<N.length&&N[i].start<=tTop;i++){const n=N[i];if(n.kind!=='user'||n.hit||n.end<t)continue;if(n.pitch<lo)outL=true;if(n.pitch>hi)outR=true}
+  g.font='600 12px '+css('--body'); g.textBaseline='middle';
+  const flag=(left)=>{const txt=left?'◀ Vienen notas más graves · Octava −':'Vienen notas más agudas · Octava + ▶';
+    const tw=g.measureText(txt).width+18, y=hitY-22, x=left?8:W-8-tw;
+    g.fillStyle=rgba(C.bg,0.9);rr(x,y-12,tw,24,6);g.fill();g.strokeStyle=rgba(C.gold,0.9);g.lineWidth=1.5;g.stroke();
+    g.fillStyle=rgba(C.gold);g.textAlign='left';g.fillText(txt,x+9,y);};
+  if(outL)flag(true); if(outR)flag(false);
   const sh=g.createLinearGradient(0,hitY,0,hitY+10);sh.addColorStop(0,'rgba(0,0,0,.35)');sh.addColorStop(1,'rgba(0,0,0,0)');
   g.fillStyle=sh;g.fillRect(0,hitY,W,10);
 }
@@ -1060,6 +1139,7 @@ addEventListener('keydown',e=>{
   else if(e.key==='ArrowLeft'){e.preventDefault();seek(S.t-2,true);lastHud=''}
   else if(e.key==='ArrowRight'){e.preventDefault();seek(S.t+2,true);lastHud=''}
   else if(k==='1')markA(); else if(k==='2')markB(); else if(k==='3')toggleLoop();
+  else if(e.key==='-')setInOct(S.inOct-1); else if(e.key==='='||e.key==='+')setInOct(S.inOct+1);
   else if(e.key==='Escape')openDrawer(false);
 });
 addEventListener('keyup',e=>{
@@ -1073,6 +1153,13 @@ function openDrawer(on){$('#drawer').classList.toggle('open',on);$('#scrim').hid
 $('#btnSettings').onclick=()=>openDrawer(true);$('#btnClose').onclick=()=>openDrawer(false);$('#scrim').onclick=()=>openDrawer(false);
 $('#midiPill').onclick=()=>{openDrawer(true);if(!midi)initMidi()};
 $('#btnConnect').onclick=()=>initMidi();
+$('#octVal').textContent=octLabel(S.inOct);
+$('#octDown').onclick=()=>setInOct(S.inOct-1);
+$('#octUp').onclick=()=>setInOct(S.inOct+1);
+$('#learnUp').onclick=()=>{S.learn=S.learn==='up'?null:'up';renderBind();if(!midi)initMidi()};
+$('#learnDown').onclick=()=>{S.learn=S.learn==='down'?null:'down';renderBind();if(!midi)initMidi()};
+$('#learnClear').onclick=()=>{S.bind={up:null,down:null};S.learn=null;store.set('bind',S.bind);renderBind()};
+renderBind();
 $('#inSel').onchange=e=>{store.set('in',e.target.value);bindInputs();refreshPorts()};
 $('#outSel').onchange=e=>{store.set('out',e.target.value);bindOutput();if(e.target.value&&S.internal)toast('Tip: apaga “Sonido interno” para oír solo Kontakt')};
 $('#internal').checked=S.internal;
@@ -1083,7 +1170,8 @@ $('#sendKeys').onchange=e=>S.sendKeys=e.target.checked;
 $('#sendAuto').onchange=e=>{S.sendAuto=e.target.checked;if(!S.sendAuto)Out.allOff()};
 $('#guide').onchange=e=>S.guide=e.target.checked;
 $('#split').oninput=e=>{S.split=+e.target.value;$('#splitName').textContent=noteName(S.split);recompute();lastHud=''};
-$('#rangeSel').onchange=e=>{S.rangeMode=e.target.value;computeRange();layoutKeys()};
+$('#rangeSel').value=S.rangeMode;
+$('#rangeSel').onchange=e=>{S.rangeMode=e.target.value;store.set('rangeMode',S.rangeMode);S.view=S.inOct;computeRange();layoutKeys()};
 $('#zoom').value=S.pps;$('#zoom').oninput=e=>{S.pps=+e.target.value;store.set('pps',S.pps)};
 $('#names').checked=S.showNames;$('#names').onchange=e=>{S.showNames=e.target.checked;store.set('names',S.showNames)};
 const showLat=()=>$('#latVal').textContent=S.latency+' ms';
